@@ -3,7 +3,7 @@
   "name": "My Meowcho",
   "version": "1.1",
   "description": "A cat-themed progress tracker with interactive timers and a webpage cat widget.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -21,6 +21,12 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "css": ["popup.css"]
+    },
+    {
+      "matches": [
+        "https://gradescope.com/*"
+      ],
+      "js": ["feature/file-parser/aryn.js"]
     }
   ]
 }
