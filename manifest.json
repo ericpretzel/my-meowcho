@@ -2,16 +2,16 @@
   "manifest_version": 3,
   "name": "My Meowcho",
   "version": "1.0",
-  "description": "Interactive cat progress tracker with rewards and sounds.",
+  "description": "A cat-themed progress tracker with interactive timers and rewards.",
   "permissions": ["storage"],
-  "host_permissions": ["<all_urls>"],
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["style.css"]
-    }
-  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "assets/icons/cat-icon.png",
+      "128": "assets/icons/cat-icon-large.png"
+    },
+    "default_title": "My Meowcho"
+  },
   "icons": {
     "48": "assets/icons/cat-icon.png",
     "128": "assets/icons/cat-icon-large.png"
