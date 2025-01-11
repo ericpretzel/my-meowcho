@@ -17,14 +17,10 @@
     "128": "assets/icons/cat-icon-large.png"
   },
   "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["popup.css"]
-    },
+    
     {
       "matches": [
-        "https://gradescope.com/*"
+        "https://*.com/*"
       ],
       "js": ["feature/file-parser/aryn.js"]
     }
