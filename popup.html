@@ -14,20 +14,23 @@
     </div>
 
     <h3>Study Timer</h3>
-    <p id="study-timer">25:00</p>
+    <p id="study-timer">00:00:00</p>
     <label>
-      Adjust Study Time (minutes):
-      <input type="number" id="study-time-input" min="1" value="25">
+      Study Duration (hours:minutes):
+      <input type="number" id="study-hours" min="0" max="23" value="0">
+      <input type="number" id="study-minutes" min="0" max="59" value="0">
     </label>
-    <button id="start-loop">Start Loop</button>
-    <button id="stop-loop">Stop Loop</button>
 
     <h3>Break Timer</h3>
-    <p id="break-timer">5:00</p>
+    <p id="break-timer">00:00:00</p>
     <label>
-      Adjust Break Time (minutes):
-      <input type="number" id="break-time-input" min="1" value="5">
+      Break Duration (hours:minutes):
+      <input type="number" id="break-hours" min="0" max="23" value="0">
+      <input type="number" id="break-minutes" min="0" max="59" value="0">
     </label>
+
+    <button id="start-study">Start Study</button>
+    <button id="stop-loop">Stop Timer</button>
 
     <h4>Points: <span id="points">0</span></h4>
     <h4>Pick Your Cat</h4>
@@ -42,4 +45,3 @@
   <script src="popup.js"></script>
 </body>
 </html>
-

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "My Meowcho",
-  "version": "1.1",
-  "description": "A cat-themed progress tracker with interactive timers and a webpage cat widget.",
-  "permissions": ["storage", "activeTab"],
+  "version": "1.2",
+  "description": "A cat-themed progress tracker with interactive timers and an interactive webpage cat.",
+  "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
