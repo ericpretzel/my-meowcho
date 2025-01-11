@@ -1,59 +1,44 @@
 #cat-container {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    z-index: 10000;
-    width: 100px;
-    height: 100px;
-  }
-  
-  #cat-container img {
-    width: 100%;
-    height: auto;
-    cursor: pointer;
-  }
-  
-  #timer-widget {
-    position: fixed;
-    bottom: 120px;
-    right: 10px;
-    width: 200px;
-    padding: 10px;
-    background-color: #ffffff;
-    border: 2px solid #6a1b9a;
-    border-radius: 8px;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  #timer-widget h3, #timer-widget h4 {
-    margin: 10px 0;
-    color: #6a1b9a;
-  }
-  
-  #timer-widget button {
-    background-color: #f48fb1;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    margin: 5px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  #timer-widget button:hover {
-    background-color: #ec407a;
-  }
-  
-  #cat-selector {
-    width: 100%;
-    padding: 5px;
-    margin-top: 10px;
-    border: 1px solid #6a1b9a;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #fce4ec;
-    color: #6a1b9a;
-  }
-  
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10000;
+  width: 100px;
+  height: 100px;
+}
+
+#cat-container img {
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+}
+
+#timer-widget {
+  position: fixed;
+  bottom: 120px;
+  right: 10px;
+  width: 200px;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 2px solid #6a1b9a;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#timer-widget h3, #timer-widget h4 {
+  margin: 10px 0;
+  color: #6a1b9a;
+}
+
+#cat-selector {
+  width: 100%;
+  padding: 5px;
+  margin-top: 10px;
+  border: 1px solid #6a1b9a;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fce4ec;
+  color: #6a1b9a;
+}

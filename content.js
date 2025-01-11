@@ -4,7 +4,6 @@ catContainer.id = 'cat-container';
 
 // Add the default cat image
 const catImage = document.createElement('img');
-catImage.src = chrome.runtime.getURL('assets/cat/cat-default.png');
 catImage.alt = 'Interactive Cat';
 catContainer.appendChild(catImage);
 
@@ -24,11 +23,11 @@ timerWidget.innerHTML = `
   <button id="customize-cat">Customize Cat</button>
   <h4>Pick Your Cat</h4>
   <select id="cat-selector">
-    <option value="cat-default.png">Default Cat</option>
-    <option value="cat-black.png">Black Cat</option>
-    <option value="cat-white.png">White Cat</option>
-    <option value="cat-tabby.png">Tabby Cat</option>
-    <option value="cat-calico.png">Calico Cat</option>
+    <option value="default">Default Cat</option>
+    <option value="black">Black Cat</option>
+    <option value="white">White Cat</option>
+    <option value="tabby">Tabby Cat</option>
+    <option value="calico">Calico Cat</option>
   </select>
 `;
 catContainer.appendChild(timerWidget);
@@ -42,10 +41,32 @@ let breakTime = 5 * 60; // 5 minutes in seconds
 let points = 0;
 let studyInterval, breakInterval;
 
+// Current selected cat
+let currentCat = 'default';
+
 // Sound effects
 const meowSound = new Audio(chrome.runtime.getURL('assets/sounds/meow.mp3'));
 const purringSound = new Audio(chrome.runtime.getURL('assets/sounds/purring.mp3'));
 const toySqueakSound = new Audio(chrome.runtime.getURL('assets/sounds/toy-squeak.mp3'));
+
+// Function to update the cat state dynamically
+function updateCatState(state) {
+  catImage.src = chrome.runtime.getURL(`assets/cat/${currentCat}/cat-${state}.png`);
+}
+
+// Load previously selected cat on initialization
+chrome.storage.sync.get(['selectedCat'], (data) => {
+  currentCat = data.selectedCat || 'default';
+  updateCatState('default'); // Set initial state
+  document.getElementById('cat-selector').value = currentCat;
+});
+
+// Save the selected cat when the user changes it
+document.getElementById('cat-selector').addEventListener('change', (event) => {
+  currentCat = event.target.value;
+  chrome.storage.sync.set({ selectedCat: currentCat });
+  updateCatState('default'); // Update to the default state of the new cat
+});
 
 // Show/hide timer widget on cat click
 catImage.addEventListener('click', () => {
@@ -56,6 +77,7 @@ catImage.addEventListener('click', () => {
 // Start study timer
 document.getElementById('start-study').addEventListener('click', () => {
   clearInterval(breakInterval);
+  updateCatState('sleeping'); // Cat sleeps during study
   studyInterval = setInterval(() => {
     if (studyTime > 0) {
       studyTime--;
@@ -65,6 +87,7 @@ document.getElementById('start-study').addEventListener('click', () => {
       points += 5; // Earn points
       document.getElementById('points').textContent = points;
       alert('Study session complete! Take a break!');
+      updateCatState('happy'); // Cat becomes happy after study
       purringSound.play();
     }
   }, 1000);
@@ -73,11 +96,13 @@ document.getElementById('start-study').addEventListener('click', () => {
 // Stop study timer
 document.getElementById('stop-study').addEventListener('click', () => {
   clearInterval(studyInterval);
+  updateCatState('default'); // Reset to default state
 });
 
 // Start break timer
 document.getElementById('start-break').addEventListener('click', () => {
   clearInterval(studyInterval);
+  updateCatState('playing'); // Cat plays during break
   breakInterval = setInterval(() => {
     if (breakTime > 0) {
       breakTime--;
@@ -85,6 +110,7 @@ document.getElementById('start-break').addEventListener('click', () => {
     } else {
       clearInterval(breakInterval);
       alert('Break over! Back to study!');
+      updateCatState('default'); // Reset to default state
     }
   }, 1000);
 });
@@ -96,7 +122,7 @@ function updateTimer(elementId, time) {
   document.getElementById(elementId).textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-// Cat customization logic
+// Customize cat (add accessories)
 document.getElementById('customize-cat').addEventListener('click', () => {
   const hat = document.createElement('img');
   hat.src = chrome.runtime.getURL('assets/accessories/hat.png');
@@ -110,18 +136,3 @@ document.getElementById('customize-cat').addEventListener('click', () => {
   document.getElementById('points').textContent = points;
   toySqueakSound.play();
 });
-
-// Cat selection logic
-document.getElementById('cat-selector').addEventListener('change', (event) => {
-    const selectedCat = event.target.value;
-    catImage.src = chrome.runtime.getURL(`assets/cat/${selectedCat}`);
-    chrome.storage.sync.set({ selectedCat }); // Save selected cat
-  });
-  
-  // Load the previously selected cat on initialization
-  chrome.storage.sync.get(['selectedCat'], (data) => {
-    const savedCat = data.selectedCat || 'cat-default.png';
-    catImage.src = chrome.runtime.getURL(`assets/cat/${savedCat}`);
-    document.getElementById('cat-selector').value = savedCat;
-  });
-  
