@@ -12,13 +12,23 @@
     <div id="cat-container">
       <img id="cat-image" src="assets/cat/default/cat-default.png" alt="Cat">
     </div>
+
     <h3>Study Timer</h3>
     <p id="study-timer">25:00</p>
-    <button id="start-study">Start Study</button>
-    <button id="stop-study">Stop</button>
+    <label>
+      Adjust Study Time (minutes):
+      <input type="number" id="study-time-input" min="1" value="25">
+    </label>
+    <button id="start-loop">Start Loop</button>
+    <button id="stop-loop">Stop Loop</button>
+
     <h3>Break Timer</h3>
     <p id="break-timer">5:00</p>
-    <button id="start-break">Start Break</button>
+    <label>
+      Adjust Break Time (minutes):
+      <input type="number" id="break-time-input" min="1" value="5">
+    </label>
+
     <h4>Points: <span id="points">0</span></h4>
     <h4>Pick Your Cat</h4>
     <select id="cat-selector">
@@ -32,3 +42,4 @@
   <script src="popup.js"></script>
 </body>
 </html>
+
