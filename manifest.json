@@ -3,10 +3,7 @@
   "name": "My Meowcho",
   "version": "1.2",
   "description": "A cat-themed progress tracker with interactive timers and an interactive webpage cat.",
-  "permissions": [
-    "storage",
-    "notifications"
-  ],
+  "permissions": ["storage", "notifications"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -22,8 +19,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["popup.css"]
+      "js": ["content.js"]
     }
   ]
 }
