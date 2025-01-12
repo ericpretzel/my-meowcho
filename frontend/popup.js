@@ -85,7 +85,7 @@ catSelector.addEventListener("change", (event) => {
   const selectedCat = event.target.value;
   chrome.storage.local.set({ selectedCat });
   const previewImage = document.getElementById("cat-image");
-  previewImage.src = `assets/cat/${selectedCat}/cat-default.png`; // Update preview to use cat-default.png
+  previewImage.src = `assets/cat/${selectedCat}/cat-idle.gif`; // Update preview to use cat-default.png
 });
 
 
