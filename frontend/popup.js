@@ -18,6 +18,7 @@ const startStudyButton = document.getElementById("start-study");
 const stopLoopButton = document.getElementById("stop-loop");
 const catSelector = document.getElementById("cat-selector");
 const generateStudyGuideInput = document.getElementById("generate-study-guide");
+const dropZone = document.getElementById("drop-zone");
 
 // Sounds
 const studySound = new Audio("assets/sounds/start-study.mp3");
@@ -124,6 +125,8 @@ studyMinutesInput.addEventListener("input", updateStudyTime);
 breakHoursInput.addEventListener("input", updateBreakTime);
 breakMinutesInput.addEventListener("input", updateBreakTime);
 generateStudyGuideInput.addEventListener("click", generateStudyGuide);
+dropZone.addEventListener("drop", dropHandler);
+dropZone.addEventListener("dragover", dragOverHandler);
 
 startStudyButton.addEventListener("click", () => {
   isStudySession = true; // Always start with a study session
@@ -136,3 +139,42 @@ stopLoopButton.addEventListener("click", stopTimerLoop);
 if (Notification.permission !== "granted") {
   Notification.requestPermission();
 }
+
+function dropHandler(ev) {
+  console.log("File(s) dropped");
+
+  // Prevent default behavior (Prevent file from being opened)
+  ev.preventDefault();
+
+  if (ev.dataTransfer.items) {
+    // Use DataTransferItemList interface to access the file(s)
+    [...ev.dataTransfer.items].forEach((item, i) => {
+      // If dropped items aren't files, reject them
+      if (item.kind === "file") {
+        const file = item.getAsFile();
+        console.log(`. . . file[${i}].name = ${file.name}`);
+        console.log(file);
+        getStudyGuide(file).then(response => {
+          console.log(response);
+        });
+      }
+    });
+  } else {
+    // Use DataTransfer interface to access the file(s)
+    [...ev.dataTransfer.files].forEach((file, i) => {
+      console.log(file);
+      console.log(`… file[${i}].name = ${file.name}`);
+      getStudyGuide(file).then(response => {
+        console.log(response);
+      });
+    });
+  }
+}
+
+function dragOverHandler(ev) {
+  console.log("File(s) in drop zone");
+
+  // Prevent default behavior (Prevent file from being opened)
+  ev.preventDefault();
+}
+

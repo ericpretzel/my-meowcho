@@ -21,10 +21,6 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-<<<<<<< HEAD
-      "js": ["content.js"],
-      "css": ["popup.css"]
-=======
       "js": ["content.js"]
     }
   ],
@@ -36,7 +32,6 @@
         "assets/sounds/*"
       ],
       "matches": ["<all_urls>"]
->>>>>>> main
     }
   ]
 }
