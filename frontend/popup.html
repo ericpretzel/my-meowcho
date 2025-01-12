@@ -8,7 +8,7 @@
 </head>
 <body id="popup-body">
   <div id="app">
-    <h1>🐾 My Meowcho</h1>
+    <h1 id="cat-name-display">🐾 My Meowcho</h1>
     <div id="cat-container">
       <img id="cat-image" src="assets/cat/default/cat-default.png" alt="Cat Preview" style="width: 100px; height: auto;">
     </div>
@@ -61,6 +61,11 @@
     <div id="drop-zone"><p>Drag PDF Here!</p></div>
 
     <button id="generate-study-guide">Generate Guide</button>
+
+    <div class="set-cat-name-prompt">
+      <input type="text" id="cat-name" placeholder="Name Your Cat" value="">
+      <button id="save-cat-name">Save Name</button>
+    </div>
 
   </div>
   <script type="module" src="popup.js"></script>

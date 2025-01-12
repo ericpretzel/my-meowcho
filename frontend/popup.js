@@ -23,6 +23,13 @@ const hungerFill = document.getElementById("hunger-fill");
 const hungerReminder = document.getElementsByClassName("hunger-reminder");
 const startStudyButton = document.getElementById("start-study");
 const stopLoopButton = document.getElementById("stop-loop");
+const saveCatNameButton = document.getElementById("save-cat-name");
+const catNameDisplay = document.getElementById("cat-name-display");
+const catNameInput = document.getElementById("cat-name");
+
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Popup started");
+});
 
 // Update timer display
 function updateTimerDisplay(element, time) {
@@ -95,6 +102,11 @@ catSelector.addEventListener("change", (event) => {
   previewImage.src = `assets/cat/${selectedCat}/cat-default.png`; // Update preview to use cat-default.png
 });
 
+saveCatNameButton.addEventListener("click", () => {
+  const catName = document.getElementById("cat-name").value;
+  chrome.storage.sync.set({ catName });
+  catNameInput.value = "";
+});
 
 // Event listeners
 studyHoursInput.addEventListener("input", updateStudyTime);
@@ -188,6 +200,10 @@ chrome.storage.onChanged.addListener((changes) => {
         console.log("Your cat is hungry, consider feeding the cat!");
       }
     });
+  }
+
+  if(changes.catName) {
+    catNameDisplay.textContent = '🐾 ' + changes.catName.newValue;
   }
 });
 
