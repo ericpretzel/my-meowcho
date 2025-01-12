@@ -5,7 +5,7 @@ let currentTimer = 0;
 let isStudySession = true; // Tracks if it's currently a study session
 let timerInterval = null;
 
-const INITIAL_HUNGER = 10; // Hunger bar starts full
+const INITIAL_HUNGER = 100; // Hunger bar starts full
 let hunger = INITIAL_HUNGER;
 
 // Sync the timer state with storage and notify other scripts
