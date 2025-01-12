@@ -21,12 +21,6 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "css": ["popup.css"]
-    },
-    {
-      "matches": [
-        "https://gradescope.com/*"
-      ],
-      "js": ["feature/file-parser/aryn.js"]
     }
   ]
 }

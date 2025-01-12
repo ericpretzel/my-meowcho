@@ -94,3 +94,4 @@ chrome.storage.sync.get(["currentState", "selectedCat"], (data) => {
   console.log(`Initializing cat: State = ${state}, Cat = ${cat}`);
   updateCatImage(cat, state);
 });
+
