@@ -18,6 +18,7 @@ const startStudyButton = document.getElementById("start-study");
 const stopLoopButton = document.getElementById("stop-loop");
 const catSelector = document.getElementById("cat-selector");
 const generateStudyGuideInput = document.getElementById("generate-study-guide");
+const feedButton = document.getElementById("feed-button");
 
 // Sounds
 const studySound = new Audio("assets/sounds/start-study.mp3");
@@ -121,12 +122,31 @@ breakHoursInput.addEventListener("input", updateBreakTime);
 breakMinutesInput.addEventListener("input", updateBreakTime);
 generateStudyGuideInput.addEventListener("click", generateStudyGuide);
 
+feedButton.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "feed" }, (response) => {
+    if (response && response.hunger !== undefined) {
+      // update hunger bar
+    }
+  });
+});
+
 startStudyButton.addEventListener("click", () => {
   isStudySession = true; // Always start with a study session
   startTimerLoop();
 });
 
 stopLoopButton.addEventListener("click", stopTimerLoop);
+
+chrome.storage.onChanged.addListener((changes) => {
+  if(changes.hunger) {
+    console.log("Hunger level changed:", changes.hunger.newValue);
+    chrome.storage.sync.get(["hunger"], (data) => {
+      if (data.hunger <= 0) {
+        console.log("Your cat is hungry, consider feeding the cat!");
+      }
+    });
+  }
+});
 
 // Request notification permission on load
 if (Notification.permission !== "granted") {
