@@ -80,13 +80,6 @@ function updateBreakTime() {
   updateTimerDisplay(breakTimerElement, breakTime);
 }
 
-function generateStudyGuide() {
-  console.log("Generate Study Guide Button Clicked");
-  getStudyGuide().then(response => {
-    console.log(response);
-  });
-}
-
 // Save selected cat and update preview
 catSelector.addEventListener("change", (event) => {
   const selectedCat = event.target.value;
@@ -101,7 +94,6 @@ studyHoursInput.addEventListener("input", updateStudyTime);
 studyMinutesInput.addEventListener("input", updateStudyTime);
 breakHoursInput.addEventListener("input", updateBreakTime);
 breakMinutesInput.addEventListener("input", updateBreakTime);
-generateStudyGuideInput.addEventListener("click", generateStudyGuide);
 dropZone.addEventListener("drop", dropHandler);
 dropZone.addEventListener("dragover", dragOverHandler);
 
@@ -124,11 +116,23 @@ function dropHandler(ev) {
         const file = item.getAsFile();
         console.log(`. . . file[${i}].name = ${file.name}`);
         console.log(file);
+        generateStudyGuideInput.textContent = "Generating Study Guide...";
         getStudyGuide(file).then(response => {
           return response.json();
         })
         .then(data => {
-          console.log(data);
+          console.log(data.body);
+          generateStudyGuideInput.textContent = "Save Study Guide as txt";
+          generateStudyGuideInput.removeAttribute("disabled");
+          generateStudyGuideInput.onclick = (e) => {
+            console.log('saving study guide');
+            var blob = new Blob([data.body], {type: "text/plain"});
+            var url = URL.createObjectURL(blob);
+            chrome.downloads.download({
+              url: url,
+              filename: "study-guide.txt"
+            });
+          }
         });
       }
     });
@@ -138,7 +142,21 @@ function dropHandler(ev) {
       console.log(file);
       console.log(`… file[${i}].name = ${file.name}`);
       getStudyGuide(file).then(response => {
-        console.log(response);
+        return response.json();
+      })
+      .then(data => {
+        console.log(data.body);
+        generateStudyGuideInput.textContent = "Save Study Guide as txt";
+        generateStudyGuideInput.removeAttribute("disabled");
+        generateStudyGuideInput.onclick = (e) => {
+          console.log('saving study guide');
+          var blob = new Blob([data.body], {type: "text/plain"});
+          var url = URL.createObjectURL(blob);
+          chrome.downloads.download({
+            url: url,
+            filename: "study-guide.txt"
+          });
+        }
       });
     });
   }
