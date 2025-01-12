@@ -8,7 +8,7 @@
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent scrollbars */
+            overflow: hidden;
         }
         canvas {
             display: block;
@@ -17,33 +17,58 @@
     </style>
 </head>
 <body>
-
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
         let screen_width = 800;
         let screen_height = 600;
         let basket_width = 100;
-        let basket_height = 50;
+        let basket_height = 100;
         let basket_x;
         let basket_y;
         let basket_speed = 7;
 
-        let yarn_width = 30;
-        let yarn_height = 30;
-        let yarn_speed = 4;
+        let yarn_width = 50;
+        let yarn_height = 39;
+        let yarn_speed = 5;
 
         let red = [255, 0, 0];
         let black = [0, 0, 0];
         let white = [255, 255, 255];
-        let yellow = [255, 255, 0];
         let score = 0;
 
         let yarn_x;
         let yarn_y;
+        
+        // Add yarn image
+        let yarnImg = new Image();
+        
+        // Add variables for cat images
+        let catRight = new Image();
+        let catLeft = new Image();
+        let currentCat;
+        let lastDirection = 'right'; // Keep track of last movement direction
 
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+
+        // Load the cat images
+        function loadImages() {
+            catRight.src = 'cat-walking(R).gif';
+            catLeft.src = 'cat-walking(L).gif';
+            yarnImg.src = 'yarn.png';
+            currentCat = catRight; // Start with right-facing cat
+            
+            // Make sure all images are loaded before starting the game
+            Promise.all([
+                new Promise(resolve => catRight.onload = resolve),
+                new Promise(resolve => catLeft.onload = resolve),
+                new Promise(resolve => yarnImg.onload = resolve)
+            ]).then(() => {
+                // Start the game after images are loaded
+                loop();
+            });
+        }
 
         function setup() {
             basket_x = screen_width / 2 - basket_width / 2;
@@ -53,16 +78,20 @@
         }
 
         function draw() {
-            ctx.clearRect(0, 0, screen_width, screen_height); // Clear the canvas
+            ctx.clearRect(0, 0, screen_width, screen_height);
             ctx.fillStyle = `rgb(${white[0]}, ${white[1]}, ${white[2]})`;
-            ctx.fillRect(0, 0, screen_width, screen_height); // Background
+            ctx.fillRect(0, 0, screen_width, screen_height);
 
-            // Move basket based on keyboard input
+            // Move basket and update cat direction
             if (keyIsDown("ArrowLeft")) {
                 basket_x -= basket_speed;
+                currentCat = catLeft;
+                lastDirection = 'left';
             }
             if (keyIsDown("ArrowRight")) {
                 basket_x += basket_speed;
+                currentCat = catRight;
+                lastDirection = 'right';
             }
 
             // Prevent basket from going out of bounds
@@ -76,33 +105,36 @@
             yarn_y += yarn_speed;
 
             // Check for yarn collision with basket
-            if (yarn_y + yarn_height > basket_y && yarn_x + yarn_width > basket_x && yarn_x < basket_x + basket_width) {
+            if (yarn_y + yarn_height > basket_y && 
+                yarn_x + yarn_width > basket_x && 
+                yarn_x < basket_x + basket_width) {
                 score += 1;
-                yarn_x = Math.floor(Math.random() * (screen_width - yarn_width)); // New yarn position
-                yarn_y = -yarn_height; // Reset yarn to top
+                yarn_x = Math.floor(Math.random() * (screen_width - yarn_width));
+                yarn_y = -yarn_height;
+
             }
 
-            // Draw basket, yarn, and score display
+            if (score > 25) {
+                yarn_speed += 0.5;
+            }
+            // Draw everything
             draw_basket(basket_x, basket_y);
             draw_yarn(yarn_x, yarn_y);
             score_display(score);
 
-            // If yarn falls off screen, game over
+            // Check for game over
             if (yarn_y > screen_height) {
                 game_over();
             }
         }
 
         function draw_basket(x, y) {
-            ctx.fillStyle = `rgb(${red[0]}, ${red[1]}, ${red[2]})`;
-            ctx.fillRect(x, y, basket_width, basket_height);
+            // Draw the current cat image instead of a rectangle
+            ctx.drawImage(currentCat, x, y, basket_width, basket_height);
         }
 
         function draw_yarn(x, y) {
-            ctx.fillStyle = `rgb(${yellow[0]}, ${yellow[1]}, ${yellow[2]})`;
-            ctx.beginPath();
-            ctx.arc(x, y, yarn_width / 2, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.drawImage(yarnImg, x, y, yarn_width, yarn_height);
         }
 
         function score_display(score) {
@@ -121,14 +153,27 @@
                 yarn_x = Math.floor(Math.random() * (screen_width - yarn_width));
                 yarn_y = -yarn_height;
                 loop();
-            }, 2000); // Restart after 2 seconds
+            }, 2000);
         }
 
-        function keyIsDown(key) {
-            return keyState[key] === true;
+        let animationId;
+        function noLoop() {
+            cancelAnimationFrame(animationId);
+        }
+
+        function loop() {
+            setup();
+            function animate() {
+                draw();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
         }
 
         const keyState = {};
+        function keyIsDown(key) {
+            return keyState[key] === true;
+        }
 
         window.addEventListener("keydown", (e) => {
             keyState[e.key] = true;
@@ -138,16 +183,8 @@
             keyState[e.key] = false;
         });
 
-        function loop() {
-            setup();
-            draw(); // Call draw once
-            setInterval(draw, 1000 / 60); // 60 FPS
-        }
-
-        // Start the game
-        loop();
-
+        // Start by loading images
+        loadImages();
     </script>
-
 </body>
 </html>

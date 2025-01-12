@@ -85,3 +85,14 @@ function game_over() {
         noLoop();
     }, 2000);
 }
+
+var catM = Object.create(spriteObject)
+
+var image = new Image();
+image.src = "cat-walking(L).GIF";
+var Xspeed = 0
+var Yspeed = 0
+var moveLeft = false;
+var moveRight = false;
+var moveUp = false;
+var moveDown = false;
