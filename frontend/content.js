@@ -173,3 +173,4 @@ chrome.runtime.sendMessage({ type: "getState" }, (response) => {
   if (isStudyMode) enforceBottomHover(selectedCat); // Immediately enforce bottom hover on load
   else resetIdleTimer(selectedCat);
 });
+

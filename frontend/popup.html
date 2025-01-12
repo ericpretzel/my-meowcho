@@ -6,7 +6,7 @@
   <title>My Meowcho</title>
   <link rel="stylesheet" href="popup.css">
 </head>
-<body>
+<body id="popup-body">
   <div id="app">
     <h1>🐾 My Meowcho</h1>
     <div id="cat-container">
@@ -29,6 +29,8 @@
       <input type="number" id="break-minutes" min="0" max="59" value="0">
     </label>
 
+    <h6></h6>
+
     <button id="start-study">Start Study</button>
     <button id="stop-loop">Stop Timer</button>
 
@@ -40,7 +42,18 @@
       <option value="tabby">Tabby Cat</option>
       <option value="calico">Calico Cat</option>
     </select>
+
+    <h3>Generate Study Guide</h3>
+    <button id="generate-study-guide">Generate Guide</button>
+
+    <h3>Feed</h3>
+    <button class="feed" id="feed-button">Feed Cat</button>
+    <button class="revive-button" id="revive-cat">REVIVE CAT!</button>
+
+    <h3>Unfeed</h3>
+    <button id="unfeed-button">Unfeed Cat</button>
+
   </div>
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

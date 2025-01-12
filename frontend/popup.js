@@ -1,3 +1,5 @@
+import getStudyGuide from "./feature/file-parser/aryn.js";
+
 // Elements
 const studyTimerElement = document.getElementById("study-timer");
 const breakTimerElement = document.getElementById("break-timer");
@@ -5,9 +7,9 @@ const studyHoursInput = document.getElementById("study-hours");
 const studyMinutesInput = document.getElementById("study-minutes");
 const breakHoursInput = document.getElementById("break-hours");
 const breakMinutesInput = document.getElementById("break-minutes");
-const startStudyButton = document.getElementById("start-study");
-const stopLoopButton = document.getElementById("stop-loop");
 const catSelector = document.getElementById("cat-selector");
+const feedButton = document.getElementById("feed-button");
+const unfeedButton = document.getElementById("unfeed-button");
 
 // Update timer display
 function updateTimerDisplay(element, time) {
@@ -57,9 +59,32 @@ catSelector.addEventListener("change", (event) => {
   previewImage.src = `assets/cat/${selectedCat}/cat-default.png`;
 });
 
-// Event listeners
-startStudyButton.addEventListener("click", startTimer);
-stopLoopButton.addEventListener("click", stopTimer);
+feedButton.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "feed" }, (response) => {
+    if (response && response.hunger !== undefined) {
+      // update hunger bar
+    }
+  });
+});
+
+unfeedButton.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "unfeed" }, (response) => {
+    if (response && response.hunger !== undefined) {
+      // update hunger bar
+    }
+  });
+});
+
+chrome.storage.onChanged.addListener((changes) => {
+  if(changes.hunger) {
+    console.log("Hunger level changed:", changes.hunger.newValue);
+    chrome.storage.sync.get(["hunger"], (data) => {
+      if (data.hunger <= 0) {
+        console.log("Your cat is hungry, consider feeding the cat!");
+      }
+    });
+  }
+});
 
 // Poll for updates to keep the UI synced
 setInterval(syncUI, 1000);
