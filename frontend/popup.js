@@ -8,6 +8,7 @@ let isStudySession = true; // Tracks if it's currently a study session
 let timerInterval;
 
 // Elements
+const popupBody = document.getElementById("popup-body");
 const studyTimerElement = document.getElementById("study-timer");
 const breakTimerElement = document.getElementById("break-timer");
 const studyHoursInput = document.getElementById("study-hours");
@@ -19,6 +20,8 @@ const stopLoopButton = document.getElementById("stop-loop");
 const catSelector = document.getElementById("cat-selector");
 const generateStudyGuideInput = document.getElementById("generate-study-guide");
 const feedButton = document.getElementById("feed-button");
+const unfeedButton = document.getElementById("unfeed-button");
+const reviveButton = document.getElementById("revive-cat")
 
 // Sounds
 const studySound = new Audio("assets/sounds/start-study.mp3");
@@ -130,6 +133,14 @@ feedButton.addEventListener("click", () => {
   });
 });
 
+unfeedButton.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "unfeed" }, (response) => {
+    if (response && response.hunger !== undefined) {
+      // update hunger bar
+    }
+  });
+});
+
 startStudyButton.addEventListener("click", () => {
   isStudySession = true; // Always start with a study session
   startTimerLoop();
@@ -143,9 +154,31 @@ chrome.storage.onChanged.addListener((changes) => {
     chrome.storage.sync.get(["hunger"], (data) => {
       if (data.hunger <= 0) {
         console.log("Your cat is hungry, consider feeding the cat!");
+        chrome.storage.sync.set({ alive: false })
       }
     });
   }
+  if(changes.alive){
+    chrome.storage.sync.get(["alive"], (data) => {
+      if(data.alive){
+        console.log("Your cat is alive!");
+        reviveButton.style.display='none';
+        feedButton.style.display='inline';
+        popupBody.style.backgroundColor = "#fce4ec";
+        popupBody.style.color = "#6a1b9a";
+      }else{
+        console.log("Your cat is dead!");
+        reviveButton.style.display='inline';
+        feedButton.style.display='none';
+        popupBody.style.backgroundColor = "grey";
+        popupBody.style.color = "white";
+      }
+    });
+  }
+});
+
+reviveButton.addEventListener("click", () => {
+  chrome.storage.sync.set({ alive: true, hunger: 10 });
 });
 
 // Request notification permission on load
