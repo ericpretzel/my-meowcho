@@ -1,116 +1,90 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+import { createCanvas, loadImage } from 'p5';
 
-const GRAVITY = 0.5;
-const JUMP_STRENGTH = -10;
-const CACTUS_WIDTH = 20;
-const CACTUS_HEIGHT = 30;
-const CAT_WIDTH = 40;
-const CAT_HEIGHT = 40;
+let screen_width = 800;
+let screen_height = 600;
+let basket_width = 100;
+let basket_height = 50;
+let basket_x;
+let basket_y;
+let basket_speed = 7;
 
-let catY = canvas.height - CAT_HEIGHT - 10;
-let catSpeedY = 0;
-let isJumping = false;
-let isGameOver = false;
+let yarn_width = 30;
+let yarn_height = 30;
+let yarn_speed = 4;
+
+let red = [255, 0, 0];
+let black = [0, 0, 0];
+let white = [255, 255, 255];
+let yellow = [255, 255, 0];
 let score = 0;
 
-const cat = {
-    x: 50,
-    y: catY,
-    width: CAT_WIDTH,
-    height: CAT_HEIGHT,
-    color: 'green',
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    },
-    jump() {
-        if (!isJumping) {
-            catSpeedY = JUMP_STRENGTH;
-            isJumping = true;
-        }
-    }
-};
+let yarn_x;
+let yarn_y;
 
-let cacti = [];
-let cactusSpeed = 3;
-
-function addCactus() {
-    let cactusY = canvas.height - CACTUS_HEIGHT - 10;
-    let cactusX = canvas.width;
-    cacti.push({ x: cactusX, y: cactusY, width: CACTUS_WIDTH, height: CACTUS_HEIGHT });
-}
-
-function update() {
-    if (isGameOver) return;
-
-  
-    cat.y += catSpeedY;
-    catSpeedY += GRAVITY;
-
-   
-    if (cat.y >= catY) {
-        cat.y = catY;
-        catSpeedY = 0;
-        isJumping = false;
-    }
-
-    
-    for (let i = 0; i < cacti.length; i++) {
-        cacti[i].x -= cactusSpeed;
-    }
-
-    
-    cacti = cacti.filter(cactus => cactus.x + cactus.width > 0);
-
-   
-    for (let i = 0; i < cacti.length; i++) {
-        if (
-            cat.x + cat.width > cacti[i].x &&
-            cat.x < cacti[i].x + cacti[i].width &&
-            cat.y + cat.height > cacti[i].y
-        ) {
-            isGameOver = true;
-        }
-    }
-
-    
-    score++;
-
-    
-    requestAnimationFrame(update);
+function setup() {
+    createCanvas(screen_width, screen_height);
+    basket_x = screen_width / 2 - basket_width / 2;
+    basket_y = screen_height - basket_height - 20;
+    yarn_x = Math.floor(Math.random() * (screen_width - yarn_width));
+    yarn_y = -yarn_height;
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    cat.draw();
-
-    for (let i = 0; i < cacti.length; i++) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(cacti[i].x, cacti[i].y, cacti[i].width, cacti[i].height);
+    background(white);
+    
+    if (keyIsDown(LEFT_ARROW)) {
+        basket_x -= basket_speed;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        basket_x += basket_speed;
+    }
+    
+    if (basket_x < 0) {
+        basket_x = 0;
+    } else if (basket_x > screen_width - basket_width) {
+        basket_x = screen_width - basket_width;
     }
 
+    yarn_y += yarn_speed;
 
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.fillText('Score: ' + score, 10, 30);
+    if (yarn_y + yarn_height > basket_y && yarn_x + yarn_width > basket_x && yarn_x < basket_x + basket_width) {
+        score += 1;
+        yarn_x = Math.floor(Math.random() * (screen_width - yarn_width));
+        yarn_y = -yarn_height;
+    }
 
-    
-    if (isGameOver) {
-        ctx.fillText('Game Over!', canvas.width / 2 - 60, canvas.height / 2);
+    draw_basket(basket_x, basket_y);
+    draw_yarn(yarn_x, yarn_y);
+    score_display(score);
+
+    if (yarn_y > screen_height) {
+        game_over();
     }
 }
 
+function draw_basket(x, y) {
+    fill(red);
+    rect(x, y, basket_width, basket_height);
+}
 
-setInterval(addCactus, 2000);
+function draw_yarn(x, y) {
+    fill(yellow);
+    ellipse(x, y, yarn_width, yarn_height);
+}
 
+function score_display(score) {
+    fill(black);
+    textSize(32);
+    text("Score: " + score, 10, 30);
+}
 
-document.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' || event.code === 'ArrowUp') {
-        cat.jump();
-    }
-});
+function game_over() {
+    fill(black);
+    textSize(72);
+    text("Meow :(", screen_width / 2 - 150, screen_height / 2 - 36);
+    noLoop();
+    setTimeout(() => {
+        noLoop();
+    }, 2000);
+}
 
-
-update();
