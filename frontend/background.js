@@ -15,11 +15,11 @@ function syncState() {
     isStudySession,
     isStudyMode: currentTimer > 0, // Determine if study mode is active
   });
-  chrome.runtime.sendMessage({
-    type: "updateTimer",
-    currentTimer,
-    isStudySession,
-  });
+  // chrome.runtime.sendMessage({
+  //   type: "updateTimer",
+  //   currentTimer,
+  //   isStudySession,
+  // });
 }
 
 // Start the timer with study and break durations
@@ -45,7 +45,7 @@ function startTimer(studyDuration, breakDuration) {
       const message = isStudySession
         ? "Focus! A new study session has started."
         : "Relax! It's time for a break.";
-      showNotification(title, message);
+      // showNotification(title, message);
     }
     syncState();
   }, 1000);

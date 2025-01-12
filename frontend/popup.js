@@ -21,6 +21,8 @@ const feedButton = document.getElementById("feed-button");
 const unfeedButton = document.getElementById("unfeed-button");
 const hungerFill = document.getElementById("hunger-fill");
 const hungerReminder = document.getElementsByClassName("hunger-reminder");
+const startStudyButton = document.getElementById("start-study");
+const stopLoopButton = document.getElementById("stop-loop");
 
 // Update timer display
 function updateTimerDisplay(element, time) {
@@ -57,20 +59,9 @@ function syncUI() {
     if (response.isStudySession) {
       updateTimerDisplay(studyTimerElement, response.currentTimer);
     } else {
-      clearInterval(timerInterval);
-      isStudySession = !isStudySession;
-      startTimerLoop();
+      updateTimerDisplay(breakTimerElement, response.currentTimer);
     }
-  }, 1000);
-}
-
-// Stop the timer loop
-function stopTimerLoop() {
-  clearInterval(timerInterval); // Ensure the interval is cleared
-  syncSessionState("idle");
-  currentTimer = 0;
-  updateTimerDisplay(studyTimerElement, studyTime);
-  updateTimerDisplay(breakTimerElement, breakTime);
+  });
 }
 
 // Update study time from input
@@ -113,13 +104,6 @@ breakMinutesInput.addEventListener("input", updateBreakTime);
 generateStudyGuideInput.addEventListener("click", generateStudyGuide);
 dropZone.addEventListener("drop", dropHandler);
 dropZone.addEventListener("dragover", dragOverHandler);
-
-startStudyButton.addEventListener("click", () => {
-  isStudySession = true; // Always start with a study session
-  startTimerLoop();
-});
-
-stopLoopButton.addEventListener("click", stopTimerLoop);
 
 // Request notification permission on load
 if (Notification.permission !== "granted") {
@@ -167,9 +151,6 @@ function dragOverHandler(ev) {
   ev.preventDefault();
 }
 
-  previewImage.src = `assets/cat/${selectedCat}/cat-default.png`;
-});
-
 function updateHungerBar(hunger) {
   if(hunger >= 80){
     hungerFill.style.backgroundColor = "green";
@@ -209,6 +190,9 @@ chrome.storage.onChanged.addListener((changes) => {
     });
   }
 });
+
+startStudyButton.addEventListener("click", startTimer);
+stopLoopButton.addEventListener("click", stopTimer);
 
 // Poll for updates to keep the UI synced
 setInterval(syncUI, 1000);

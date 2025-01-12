@@ -18,9 +18,6 @@
     "48": "assets/icons/cat-icon.png",
     "128": "assets/icons/cat-icon-large.png"
   },
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
