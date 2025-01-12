@@ -34,20 +34,22 @@ function syncSessionState(state) {
 
 // Show notifications
 function showNotification(title, message) {
-  if (Notification.permission === "granted") {
-    new Notification(title, { body: message, icon: "assets/icons/cat-icon.png" });
-  } else if (Notification.permission !== "denied") {
-    Notification.requestPermission();
-  }
+  chrome.storage.sync.get("selectedCat", (data) => {
+    const selectedCat = data.selectedCat || "default";
+    const iconUrl = `assets/cat/${selectedCat}/cat-default.png`;
+    if (Notification.permission === "granted") {
+      new Notification(title, { body: message, icon: iconUrl });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+  });
 }
 
 // Start the timer loop
 function startTimerLoop() {
-  // Determine initial session
   currentTimer = isStudySession ? studyTime : breakTime;
   syncSessionState(isStudySession ? "study" : "break");
 
-  // Play appropriate sound and notification
   if (isStudySession) {
     studySound.play();
     showNotification("Study Time", "Focus on your work!");
@@ -56,7 +58,6 @@ function startTimerLoop() {
     showNotification("Break Time", "Take a well-deserved break!");
   }
 
-  // Start countdown
   timerInterval = setInterval(() => {
     if (currentTimer > 0) {
       currentTimer--;
@@ -66,16 +67,16 @@ function startTimerLoop() {
         updateTimerDisplay(breakTimerElement, currentTimer);
       }
     } else {
-      clearInterval(timerInterval); // Stop the current session
-      isStudySession = !isStudySession; // Switch session
-      startTimerLoop(); // Start the next session
+      clearInterval(timerInterval);
+      isStudySession = !isStudySession;
+      startTimerLoop();
     }
   }, 1000);
 }
 
 // Stop the timer loop
 function stopTimerLoop() {
-  clearInterval(timerInterval);
+  clearInterval(timerInterval); // Ensure the interval is cleared
   syncSessionState("idle");
   currentTimer = 0;
   updateTimerDisplay(studyTimerElement, studyTime);
@@ -98,11 +99,14 @@ function updateBreakTime() {
   updateTimerDisplay(breakTimerElement, breakTime);
 }
 
-// Save selected cat
+// Save selected cat and update preview
 catSelector.addEventListener("change", (event) => {
   const selectedCat = event.target.value;
   chrome.storage.sync.set({ selectedCat });
+  const previewImage = document.getElementById("cat-image");
+  previewImage.src = `assets/cat/${selectedCat}/cat-default.png`; // Update preview to use cat-default.png
 });
+
 
 // Event listeners
 studyHoursInput.addEventListener("input", updateStudyTime);
