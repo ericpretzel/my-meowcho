@@ -24,7 +24,7 @@ const catImage = document.createElement("img");
 catImage.alt = "Interactive Cat";
 catImage.style.width = "100%";
 catImage.style.height = "100%";
-catImage.src = ""; // Default image will be set dynamically
+catImage.src = chrome.runtime.getURL("assets/cat/default/cat-default.png");
 catContainer.appendChild(catImage);
 
 // Append the cat container to the body

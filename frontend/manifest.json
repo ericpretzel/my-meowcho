@@ -7,16 +7,17 @@
   "background": {
     "service_worker": "background.js"
   },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "48": "assets/icons/cat-icon.png",
-      "128": "assets/icons/cat-icon-large.png"
-    }
-  },
   "icons": {
     "48": "assets/icons/cat-icon.png",
     "128": "assets/icons/cat-icon-large.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/cat-icon-16.png",
+      "48": "assets/icons/cat-icon.png",
+      "128": "assets/icons/cat-icon-large.png"
+    }
   },
   "content_scripts": [
     {
