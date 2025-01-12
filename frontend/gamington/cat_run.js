@@ -44,26 +44,26 @@ function addCactus() {
 function update() {
     if (isGameOver) return;
 
-    // Update cat's position
+  
     cat.y += catSpeedY;
     catSpeedY += GRAVITY;
 
-    // Prevent cat from falling below ground level
+   
     if (cat.y >= catY) {
         cat.y = catY;
         catSpeedY = 0;
         isJumping = false;
     }
 
-    // Move cacti
+    
     for (let i = 0; i < cacti.length; i++) {
         cacti[i].x -= cactusSpeed;
     }
 
-    // Remove off-screen cacti
+    
     cacti = cacti.filter(cactus => cactus.x + cactus.width > 0);
 
-    // Check for collision
+   
     for (let i = 0; i < cacti.length; i++) {
         if (
             cat.x + cat.width > cacti[i].x &&
@@ -74,10 +74,10 @@ function update() {
         }
     }
 
-    // Increase score
+    
     score++;
 
-    // Update the game state
+    
     requestAnimationFrame(update);
 }
 
@@ -91,26 +91,26 @@ function draw() {
         ctx.fillRect(cacti[i].x, cacti[i].y, cacti[i].width, cacti[i].height);
     }
 
-    // Display score
+
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
     ctx.fillText('Score: ' + score, 10, 30);
 
-    // Display game over message
+    
     if (isGameOver) {
         ctx.fillText('Game Over!', canvas.width / 2 - 60, canvas.height / 2);
     }
 }
 
-// Generate cacti every 2 seconds
+
 setInterval(addCactus, 2000);
 
-// Keyboard controls
+
 document.addEventListener('keydown', (event) => {
     if (event.code === 'Space' || event.code === 'ArrowUp') {
         cat.jump();
     }
 });
 
-// Start the game loop
+
 update();
