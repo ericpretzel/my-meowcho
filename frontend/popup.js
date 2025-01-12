@@ -1,4 +1,4 @@
-import { getStudyGuide } from "./feature/file-parser/aryn.js";
+import getStudyGuide from "./feature/file-parser/aryn.js";
 
 // Timer variables
 let studyTime = 0; // Study time in seconds
@@ -17,6 +17,7 @@ const breakMinutesInput = document.getElementById("break-minutes");
 const startStudyButton = document.getElementById("start-study");
 const stopLoopButton = document.getElementById("stop-loop");
 const catSelector = document.getElementById("cat-selector");
+const generateStudyGuideInput = document.getElementById("generate-study-guide");
 
 // Sounds
 const studySound = new Audio("assets/sounds/start-study.mp3");
@@ -102,7 +103,9 @@ function updateBreakTime() {
 
 function generateStudyGuide() {
   console.log("Generate Study Guide Button Clicked");
-  getStudyGuide();
+  getStudyGuide().then(response => {
+    console.log(response);
+  });
 }
 
 // Save selected cat
@@ -116,13 +119,7 @@ studyHoursInput.addEventListener("input", updateStudyTime);
 studyMinutesInput.addEventListener("input", updateStudyTime);
 breakHoursInput.addEventListener("input", updateBreakTime);
 breakMinutesInput.addEventListener("input", updateBreakTime);
-generateStudyGuideInput.addEventListener("click", async () => {
-  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
-  console.log(tab.url);
-  if (tab.url.includes("https://www.gradescope.com/courses/*")) {
-    generateStudyGuide();
-  }
-});
+generateStudyGuideInput.addEventListener("click", generateStudyGuide);
 
 startStudyButton.addEventListener("click", () => {
   isStudySession = true; // Always start with a study session
