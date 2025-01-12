@@ -24,7 +24,7 @@ const catImage = document.createElement("img");
 catImage.alt = "Interactive Cat";
 catImage.style.width = "100%";
 catImage.style.height = "100%";
-catImage.src = chrome.runtime.getURL("assets/cat/default/cat-default.png");
+catImage.src = ""; // Default image will be set dynamically
 catContainer.appendChild(catImage);
 
 // Append the cat container to the body
@@ -133,6 +133,7 @@ catContainer.addEventListener("mouseover", () => {
 catContainer.addEventListener("mouseout", () => {
   chrome.storage.local.get(["selectedCat", "currentState"], (data) => {
     const selectedCat = data.selectedCat || "default";
+    const state = data.currentState || "idle";
     if (!isMoving) {
       const randomState = Math.random() < 0.5 ? "idle" : "sleeping"; // Randomly pick idle or sleeping
       updateCatImage(selectedCat, randomState);
@@ -156,9 +157,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     isStudyMode = message.currentTimer > 0; // Update study mode status based on the timer
     console.log(`Study mode updated: ${isStudyMode}`);
 
+    // Start or stop hover behavior based on study mode
     const selectedCat = message.selectedCat || "default";
-    if (isStudyMode) enforceBottomHover(selectedCat); // Start hovering at the bottom when study mode is active
-    else resetIdleTimer(selectedCat); // Resume drifting
+    if (isStudyMode) enforceBottomHover(selectedCat);
+    else resetIdleTimer(selectedCat);
   }
 });
 
@@ -166,7 +168,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.sendMessage({ type: "getState" }, (response) => {
   isStudyMode = response.isStudyMode;
   const selectedCat = response.selectedCat || "default";
+
   console.log(`Initializing cat: Study mode = ${isStudyMode}`);
   if (isStudyMode) enforceBottomHover(selectedCat); // Immediately enforce bottom hover on load
   else resetIdleTimer(selectedCat);
 });
+
