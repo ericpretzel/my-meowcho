@@ -29,6 +29,10 @@ function startTimer(studyDuration, breakDuration) {
   studyTime = studyDuration;
   breakTime = breakDuration;
   currentTimer = isStudySession ? studyTime : breakTime;
+
+  // Save the timers to storage for persistence
+  chrome.storage.local.set({ studyTime, breakTime });
+
   syncState();
 
   timerInterval = setInterval(() => {
@@ -39,17 +43,24 @@ function startTimer(studyDuration, breakDuration) {
       isStudySession = !isStudySession;
       currentTimer = isStudySession ? studyTime : breakTime;
       syncState();
-
-      // Optional: Send notifications for transitions
-      const title = isStudySession ? "Study Time" : "Break Time";
-      const message = isStudySession
-        ? "Focus! A new study session has started."
-        : "Relax! It's time for a break.";
-      // showNotification(title, message);
     }
-    syncState();
   }, 1000);
 }
+
+// Initialize: Restore timer state when the extension is loaded
+chrome.storage.local.get(["currentTimer", "isStudySession", "studyTime", "breakTime"], (data) => {
+  currentTimer = data.currentTimer || 0;
+  isStudySession = data.isStudySession !== undefined ? data.isStudySession : true;
+
+  // Use saved study and break times or default to 25 min study, 5 min break
+  studyTime = data.studyTime || 1500; // Default to 1500 seconds (25 minutes)
+  breakTime = data.breakTime || 300; // Default to 300 seconds (5 minutes)
+
+  if (currentTimer > 0) {
+    startTimer(studyTime, breakTime); // Restart timer if it was running
+  }
+});
+
 
 // Stop the timer
 function stopTimer() {

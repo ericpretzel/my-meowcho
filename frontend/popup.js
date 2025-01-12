@@ -214,3 +214,19 @@ stopLoopButton.addEventListener("click", stopTimer);
 
 // Poll for updates to keep the UI synced
 setInterval(syncUI, 1000);
+
+// Load saved study and break durations into the input fields
+chrome.storage.local.get(["studyTime", "breakTime"], (data) => {
+  const studySeconds = data.studyTime || 1500; // Default to 25 minutes
+  const breakSeconds = data.breakTime || 300; // Default to 5 minutes
+
+  // Populate the input fields
+  studyHoursInput.value = Math.floor(studySeconds / 3600);
+  studyMinutesInput.value = Math.floor((studySeconds % 3600) / 60);
+  breakHoursInput.value = Math.floor(breakSeconds / 3600);
+  breakMinutesInput.value = Math.floor((breakSeconds % 3600) / 60);
+
+  // Update the timer display
+  updateStudyTime();
+  updateBreakTime();
+});

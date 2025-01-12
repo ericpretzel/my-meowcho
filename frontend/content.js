@@ -146,8 +146,26 @@ catContainer.addEventListener("mouseout", () => {
 catContainer.addEventListener("click", () => {
   chrome.storage.local.get("selectedCat", (data) => {
     const selectedCat = data.selectedCat || "default";
-    alert("Meow! You clicked the cat!");
-    resetIdleTimer(selectedCat); // Restart the idle timer on click
+
+    // Array of sound files
+    const sounds = [
+      chrome.runtime.getURL("assets/sounds/mike.mp3"),
+      chrome.runtime.getURL("assets/sounds/eric.mp3"),
+      chrome.runtime.getURL("assets/sounds/solas.mp3"),
+      chrome.runtime.getURL("assets/sounds/angie.mp3"),
+    ];
+
+    // Randomly select a sound
+    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+
+    // Play the selected sound
+    const audio = new Audio(randomSound);
+    audio.play();
+
+    console.log("Cat clicked! Playing sound:", randomSound);
+
+    // Reset the idle timer after click
+    resetIdleTimer(selectedCat);
   });
 });
 
