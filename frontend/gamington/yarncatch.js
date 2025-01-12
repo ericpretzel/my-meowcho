@@ -1,5 +1,3 @@
-import { createCanvas, loadImage } from 'p5';
-
 let screen_width = 800;
 let screen_height = 600;
 let basket_width = 100;
@@ -87,4 +85,3 @@ function game_over() {
         noLoop();
     }, 2000);
 }
-
