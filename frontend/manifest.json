@@ -1,25 +1,37 @@
 {
   "manifest_version": 3,
   "name": "My Meowcho",
-  "version": "1.2",
-  "description": "A cat-themed progress tracker with interactive timers and an interactive webpage cat.",
-  "permissions": ["storage", "notifications"],
+  "version": "1.3",
+  "description": "A cat-themed progress tracker with interactive timers and animations.",
+  "permissions": ["storage", "notifications", "activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "48": "assets/icons/cat-icon.png",
       "128": "assets/icons/cat-icon-large.png"
-    },
-    "default_title": "My Meowcho"
+    }
   },
   "icons": {
     "48": "assets/icons/cat-icon.png",
     "128": "assets/icons/cat-icon-large.png"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/cat/*",
+        "assets/icons/*",
+        "assets/sounds/*"
+      ],
+      "matches": ["<all_urls>"]
     }
   ]
 }
