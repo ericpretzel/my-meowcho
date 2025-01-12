@@ -1,17 +1,20 @@
 // Debugging log to confirm script runs
-console.log("Interactive cat script loaded");
+console.log("Interactive cat-in-tab script loaded");
 
-let idleWalkTimer = null; // Timer for idle walking
-let previousXPosition = 20; // Track the last X position of the cat (default to initial position)
+let isMoving = false; // Tracks if the cat is currently moving
+let previousX = 0; // Tracks the previous X position for determining direction
+let idleTimeout; // Tracks timeout for idle drifting
+let isStudyMode = false; // Tracks if the study timer is active
+const IDLE_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // Create the interactive cat container
 const catContainer = document.createElement("div");
 catContainer.id = "interactive-cat";
 catContainer.style.position = "fixed"; // Float above the page
-catContainer.style.bottom = "20px"; // Fixed bottom position
-catContainer.style.left = "20px"; // Initial position
-catContainer.style.width = "50px"; // Default small size
-catContainer.style.height = "50px";
+catContainer.style.left = "20px"; // Initial left position
+catContainer.style.bottom = "20px"; // Start at the bottom
+catContainer.style.width = "80px"; // Set the size of the cat
+catContainer.style.height = "80px";
 catContainer.style.zIndex = "10000"; // Float above everything
 catContainer.style.cursor = "pointer"; // Pointer cursor for interactivity
 catContainer.style.pointerEvents = "auto"; // Allow interactions
@@ -28,152 +31,145 @@ catContainer.appendChild(catImage);
 document.body.appendChild(catContainer);
 console.log("Interactive cat container added to the DOM");
 
-// Function to update the cat image based on the action
-function updateCatImage(cat, state, direction = "") {
-  // Construct the image path based on state and direction
+// Function to update the cat image based on the selected state and direction
+function updateCatImage(selectedCat, state, direction = "") {
   const imagePath = direction
-    ? chrome.runtime.getURL(`assets/cat/${cat}/cat-${state}-${direction}.gif`)
-    : chrome.runtime.getURL(`assets/cat/${cat}/cat-${state}.gif`);
+    ? chrome.runtime.getURL(`assets/cat/${selectedCat}/cat-${state}-${direction}.gif`)
+    : chrome.runtime.getURL(`assets/cat/${selectedCat}/cat-${state}.gif`);
   catImage.src = imagePath;
   console.log(`Updated cat image to: ${imagePath}`);
 }
 
-// Function to randomly move the cat along the bottom of the screen
-function moveCatHorizontally() {
-  const catWidth = 50; // Small default size
-  const viewportWidth = window.innerWidth - catWidth; // Maximum X position
+// Function to ensure the cat stays within the viewport bounds
+function clampPosition(x) {
+  const viewportWidth = window.innerWidth - 80; // Account for cat size
+  return Math.min(Math.max(x, 0), viewportWidth);
+}
 
-  // Generate random positions along the horizontal axis
-  const randomX = Math.max(0, Math.floor(Math.random() * viewportWidth));
-  const direction = randomX < previousXPosition ? "left" : "right"; // Determine movement direction
+// Function to make the cat hover at the bottom during study mode
+function enforceBottomHover(selectedCat) {
+  if (!isStudyMode) return; // Only enforce bottom hover during study mode
 
-  // Adjust movement speed to look like the cat is walking
-  const transitionSpeed = "4s"; // Slow enough to match walking animation
-  catContainer.style.transition = `left ${transitionSpeed} linear`;
+  const viewportWidth = window.innerWidth - 80; // Account for cat size
+  let randomX = Math.floor(Math.random() * viewportWidth);
+  randomX = clampPosition(randomX); // Clamp X position
 
-  // Move the cat horizontally to the new position
-  catContainer.style.left = `${randomX}px`; // Set X position
+  const direction = randomX < previousX ? "left" : "right"; // Determine movement direction
+  previousX = randomX; // Update previous X position
 
-  chrome.storage.sync.get("selectedCat", (data) => {
-    const cat = data.selectedCat || "default";
-    updateCatImage(cat, "walking", direction); // Show walking gif based on direction
-  });
+  isMoving = true; // Mark the cat as moving
+  catContainer.style.transition = "left 2s ease-in-out"; // Smooth horizontal movement
+  catContainer.style.left = `${randomX}px`;
+  catContainer.style.bottom = "20px"; // Lock to the bottom
 
-  // Update the previous X position
-  previousXPosition = randomX;
+  // Update the cat's walking GIF during movement
+  updateCatImage(selectedCat, "walking", direction);
 
-  // After moving, make the cat idle again
+  // After the movement is complete, show idle animation
   setTimeout(() => {
-    makeCatIdle(); // Change to idle (sleeping) after the move
-  }, parseFloat(transitionSpeed) * 1000); // Delay matches the transition time
+    isMoving = false;
+    const randomState = Math.random() < 0.5 ? "idle" : "sleeping"; // Randomly pick idle or sleeping
+    updateCatImage(selectedCat, randomState);
+    console.log(`Cat hovered at the bottom and is now ${randomState}.`);
+  }, 2000); // Match the transition duration
 }
 
-// Function to make the cat idle
-function makeCatIdle() {
-  chrome.storage.sync.get("selectedCat", (data) => {
-    const cat = data.selectedCat || "default";
-    updateCatImage(cat, "sleeping"); // Use sleeping gif when idle
-  });
+// Function to make the cat drift randomly within the tab
+function driftCatRandomly(selectedCat) {
+  if (isStudyMode) return; // Prevent drifting during study mode
+
+  const viewportWidth = window.innerWidth - 80; // Account for cat size
+  const viewportHeight = window.innerHeight - 80;
+
+  let randomX = Math.floor(Math.random() * viewportWidth);
+  let randomY = Math.floor(Math.random() * viewportHeight);
+
+  // Clamp the position to ensure the cat stays on the screen
+  randomX = clampPosition(randomX);
+  randomY = Math.min(Math.max(randomY, 0), viewportHeight);
+
+  const direction = randomX < previousX ? "left" : "right"; // Determine movement direction
+  previousX = randomX; // Update previous X position
+
+  isMoving = true; // Mark the cat as moving
+  catContainer.style.transition = "left 2s ease-in-out, top 2s ease-in-out"; // Smooth, slow movement
+  catContainer.style.left = `${randomX}px`;
+  catContainer.style.top = `${randomY}px`;
+
+  // Update the cat's walking GIF during movement
+  updateCatImage(selectedCat, "walking", direction);
+
+  // After the movement is complete, randomly show idle or sleeping animation
+  setTimeout(() => {
+    isMoving = false;
+    const randomState = Math.random() < 0.5 ? "idle" : "sleeping"; // Randomly pick idle or sleeping
+    updateCatImage(selectedCat, randomState);
+    console.log(`Cat drifted and is now ${randomState}.`);
+    resetIdleTimer(selectedCat); // Restart the idle timer
+  }, 2000); // Match the transition duration
 }
 
-// Function to handle state transitions
-function handleStateTransition(state) {
-  // Clear any existing idle walk timer
-  if (idleWalkTimer) {
-    clearInterval(idleWalkTimer);
-    idleWalkTimer = null;
-  }
-
-  if (state === "break") {
-    console.log("Switching to break mode");
-    catContainer.style.display = "none"; // Hide the cat during break
-    breakContainer.style.display = "block"; // Show break message
-  } else if (state === "study") {
-    console.log("Switching to study mode");
-    catContainer.style.display = "block"; // Show the cat
-    moveCatHorizontally(); // Start horizontal movement during study
-    setInterval(() => moveCatHorizontally(), 8000); // Repeat slower movements every 8 seconds
-  } else if (state === "idle") {
-    console.log("Switching to idle mode");
-    breakContainer.style.display = "none"; // Hide break message
-    catContainer.style.display = "block"; // Always show the cat
-
-    // Set an interval to make the cat walk along the bottom every 5 minutes
-    idleWalkTimer = setInterval(() => {
-      console.log("Idle walk triggered");
-      moveCatHorizontally();
-    }, 300000); // 300,000ms = 5 minutes
-  }
+// Function to reset the idle timer
+function resetIdleTimer(selectedCat) {
+  clearTimeout(idleTimeout); // Clear the existing timeout
+  idleTimeout = setTimeout(() => {
+    driftCatRandomly(selectedCat); // Trigger a random drift after timeout
+  }, IDLE_TIME_LIMIT);
+  console.log("Idle timer reset.");
 }
 
-// Function to handle random idle and movement behavior
-function handleRandomBehavior() {
-  const shouldMove = Math.random() > 0.5; // 50% chance to move or be idle
-  if (shouldMove) {
-    moveCatHorizontally();
-  } else {
-    makeCatIdle();
-  }
-}
-
-// Function to move the cat when the cursor touches it
+// Add hover and click interactions
 catContainer.addEventListener("mouseover", () => {
-  moveCatHorizontally(); // Glide to a new location along the bottom when the cursor touches it
+  chrome.storage.local.get("selectedCat", (data) => {
+    const selectedCat = data.selectedCat || "default";
+    if (isStudyMode) {
+      enforceBottomHover(selectedCat); // Hover at the bottom during study mode
+    } else {
+      driftCatRandomly(selectedCat); // Roam freely when not in study mode
+    }
+  });
 });
 
-// Add click interaction to change to happy gif
-catContainer.addEventListener("click", () => {
-  chrome.storage.sync.get("selectedCat", (data) => {
-    const cat = data.selectedCat || "default";
-    updateCatImage(cat, "happy"); // Change to happy gif when clicked
-    setTimeout(() => {
-      handleRandomBehavior(); // Revert to random behavior after being happy
-    }, 1000);
+catContainer.addEventListener("mouseout", () => {
+  chrome.storage.local.get(["selectedCat", "currentState"], (data) => {
+    const selectedCat = data.selectedCat || "default";
+    const state = data.currentState || "idle";
+    if (!isMoving) {
+      const randomState = Math.random() < 0.5 ? "idle" : "sleeping"; // Randomly pick idle or sleeping
+      updateCatImage(selectedCat, randomState);
+      console.log(`Cat is now ${randomState}.`);
+      resetIdleTimer(selectedCat); // Restart the idle timer
+    }
   });
-  alert("Meow! You clicked the cat!");
+});
+
+catContainer.addEventListener("click", () => {
+  chrome.storage.local.get("selectedCat", (data) => {
+    const selectedCat = data.selectedCat || "default";
+    alert("Meow! You clicked the cat!");
+    resetIdleTimer(selectedCat); // Restart the idle timer on click
+  });
 });
 
 // Sync state and selected cat from storage
-chrome.storage.onChanged.addListener((changes) => {
-  if (changes.currentState) {
-    chrome.storage.sync.get(["currentState", "selectedCat"], (data) => {
-      const cat = data.selectedCat || "default";
-      const state = data.currentState || "idle";
-      updateCatImage(cat, state, ""); // Use state to update image
-      handleStateTransition(state);
-    });
-  }
-
-  if (changes.selectedCat) {
-    const selectedCat = changes.selectedCat.newValue;
-    chrome.storage.sync.get("currentState", (data) => {
-      const state = data.currentState || "idle";
-      updateCatImage(selectedCat, state, ""); // Use state to update image
-    });
-  }
-});
-
-// Respond to messages from background.js
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "updateTimer") {
-    if (message.isStudySession) {
-      console.log("Timer Update: Study Mode");
-      handleStateTransition("study");
-    } else if (message.isStudySession === false) {
-      console.log("Timer Update: Break Mode");
-      handleStateTransition("break");
-    } else {
-      console.log("Timer Update: Idle Mode");
-      handleStateTransition("idle");
-    }
+    isStudyMode = message.currentTimer > 0; // Update study mode status based on the timer
+    console.log(`Study mode updated: ${isStudyMode}`);
+
+    // Start or stop hover behavior based on study mode
+    const selectedCat = message.selectedCat || "default";
+    if (isStudyMode) enforceBottomHover(selectedCat);
+    else resetIdleTimer(selectedCat);
   }
 });
 
-// Initialize the cat on page load
-chrome.storage.sync.get(["currentState", "selectedCat"], (data) => {
-  const state = data.currentState || "idle";
-  const cat = data.selectedCat || "default";
-  console.log(`Initializing cat: State = ${state}, Cat = ${cat}`);
-  updateCatImage(cat, "sleeping"); // Default to sleeping
-  handleStateTransition(state);
+// Immediately request state from background.js on page load
+chrome.runtime.sendMessage({ type: "getState" }, (response) => {
+  isStudyMode = response.isStudyMode;
+  const selectedCat = response.selectedCat || "default";
+
+  console.log(`Initializing cat: Study mode = ${isStudyMode}`);
+  if (isStudyMode) enforceBottomHover(selectedCat); // Immediately enforce bottom hover on load
+  else resetIdleTimer(selectedCat);
 });
