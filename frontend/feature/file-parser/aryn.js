@@ -16,7 +16,7 @@
 // }
 
 export default function getStudyGuide(file) {
-    const url = 'https://u39ugs9lcj.execute-api.us-east-1.amazonaws.com/meowchoGetStudyGuide';
+    const url = 'https://vrzy5euqs6yd5uusmdqbfkmsyu0oeudw.lambda-url.us-east-1.on.aws/' //'https://u39ugs9lcj.execute-api.us-east-1.amazonaws.com/meowchoGetStudyGuide';
     // send raw binary
     return fetch(url, {
         method: 'POST',

@@ -155,7 +155,10 @@ function dropHandler(ev) {
         console.log(`. . . file[${i}].name = ${file.name}`);
         console.log(file);
         getStudyGuide(file).then(response => {
-          console.log(response);
+          return response.json();
+        })
+        .then(data => {
+          console.log(data);
         });
       }
     });
